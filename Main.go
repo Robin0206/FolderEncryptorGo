@@ -3,10 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	var paths []string
-	paths = getAllPaths("/home/robin/GolandProjects", paths)
+	encData := getEncDataArr("/home/robin/GolandProjects")
 	fmt.Println("===================================================================================")
-	for i := 0; i < len(paths); i++ {
-		fmt.Println(paths[i])
+	for i := 0; i < len(encData); i++ {
+		fmt.Println(encData[i].toString())
 	}
 }

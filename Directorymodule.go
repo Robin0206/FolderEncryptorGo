@@ -28,3 +28,12 @@ func getAllPaths(dir string, buffer []string) []string {
 	}
 	return buffer
 }
+func getEncDataArr(path string) []EncData {
+	var paths []string
+	paths = getAllPaths(path, paths)
+	var result []EncData
+	for i := 0; i < len(paths); i++ {
+		result = append(result, generateEncData(paths[i]))
+	}
+	return result
+}

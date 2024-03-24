@@ -45,7 +45,7 @@ func generateNewPath(path string) string {
 	splitOldPath := strings.Split(path, "/")
 	splitNewPath := splitOldPath[:len(splitOldPath)-1]
 	newFileName := generateNewFileName()
-	splitNewPath = append(splitNewPath, string(newFileName))
+	splitNewPath = append(splitNewPath, string(newFileName))[1:]
 	var result = ""
 	for i := 0; i < len(splitNewPath); i++ {
 		result += "/" + splitNewPath[i]

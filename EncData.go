@@ -41,6 +41,24 @@ func (this_ptr *EncData) toString() string {
 	return result
 }
 
+func encDataFromString(input string) EncData {
+	var result EncData
+	var splitInput = strings.Split(input, ";")
+	result.oldPath = splitInput[1]
+	result.newPath = splitInput[0]
+	result.salt = make([]byte, 16)
+	for i := 0; i < len(result.salt); i++ {
+		converted, _ := strconv.Atoi(splitInput[2+i])
+		result.salt[i] = byte(converted)
+	}
+	result.nonce = make([]byte, chacha20.NonceSize)
+	for i := 0; i < len(result.nonce); i++ {
+		converted, _ := strconv.Atoi(splitInput[2+len(result.salt)+i])
+		result.nonce[i] = byte(converted)
+	}
+	return result
+}
+
 func generateNewPath(path string) string {
 	splitOldPath := strings.Split(path, "/")
 	splitNewPath := splitOldPath[:len(splitOldPath)-1]

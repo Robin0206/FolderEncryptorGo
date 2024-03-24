@@ -105,7 +105,7 @@ func (this_ptr *ChaChaEncryptor) encrypt(password string) {
 			break
 		}
 	}
-	os.Remove(this_ptr.encData.oldPath)
+	safeDelete(this_ptr.encData.oldPath)
 }
 
 func (this_ptr *ChaChaEncryptor) decrypt(password string) {
@@ -127,7 +127,7 @@ func (this_ptr *ChaChaEncryptor) decrypt(password string) {
 			break
 		}
 	}
-	safeDelete(this_ptr.encData.oldPath)
+	os.Remove(this_ptr.encData.oldPath)
 }
 
 func safeDelete(path string) {

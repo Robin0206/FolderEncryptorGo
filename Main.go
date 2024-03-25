@@ -22,8 +22,9 @@ func main() {
 		printPathInfo(path)
 		printThreadInfo(numThreads)
 		printNumOfFiles(path)
+		printBufferSizeInfo()
 		choice := showMenuAndGetChoice(path)
-		if choice == 2 {
+		if choice == 3 {
 			password := getPasswordFromUser()
 			var pool = generateWorkerpool(numThreads, path, password)
 			var start = time.Now()
@@ -32,14 +33,36 @@ func main() {
 			fmt.Println("Done after " + time.Since(start).String())
 			break
 		}
-		if choice == 1 {
+		if choice == 2 {
 			numThreads = getNumOfThreadsFromUser()
 		}
-		if choice != 1 && choice != 2 {
+		if choice == 1 {
+			ENC_BUFFERSIZE = getBufferSizeFromUser()
+		}
+		if choice != 1 && choice != 2 && choice != 3 {
 			os.Exit(0)
 		}
 	}
 
+}
+
+func getBufferSizeFromUser() int {
+	fmt.Print("Please set the desired buffer size in bytes> ")
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	line = strings.ReplaceAll(line, "\n", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	num, err := strconv.Atoi(line)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return num
+}
+
+func printBufferSizeInfo() {
+	fmt.Println("Buffersize: " + strconv.Itoa(ENC_BUFFERSIZE) + " bytes")
 }
 
 func printNumOfFiles(path string) {
@@ -83,11 +106,12 @@ func printThreadInfo(numThreads int) {
 func showMenuAndGetChoice(path string) int {
 	fmt.Println("======================Menu======================")
 	if pathFolderContainsEncData(path) {
-		fmt.Println("2 => Decrypt")
+		fmt.Println("3 => Decrypt")
 	} else {
-		fmt.Println("2 => Encrypt")
+		fmt.Println("3 => Encrypt")
 	}
-	fmt.Println("1 => Change number of threads")
+	fmt.Println("2 => Change number of threads")
+	fmt.Println("1 => Change buffer size")
 	fmt.Println("0 => Exit")
 	fmt.Println()
 	fmt.Print("Please set the desired option> ")

@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-const ENC_BUFFERSIZE = 100000
+var ENC_BUFFERSIZE = 1000000
 
 type Encryptor interface {
 	encrypt(password string)

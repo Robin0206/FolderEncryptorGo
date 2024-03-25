@@ -2,6 +2,10 @@ package main
 
 import (
 	"bufio"
+	"crypto/rand"
+	"fmt"
+	"golang.org/x/crypto/chacha20poly1305"
+	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -22,10 +26,12 @@ type Workerpool struct {
 	wg                 sync.WaitGroup
 	path               string
 	encrypting         bool
+	password           string
 }
 
 func generateEncryptingWorkerpool(numThreads int, path string, password string) *Workerpool {
 	var result Workerpool
+	result.password = password
 	result.encrypting = true
 	result.path = path
 	result.encData = getEncDataArr(path)
@@ -44,9 +50,10 @@ func generateEncryptingWorkerpool(numThreads int, path string, password string) 
 
 func generateDecryptingWorkerpool(numThreads int, path string, password string) *Workerpool {
 	var result Workerpool
+	result.password = password
 	result.encrypting = false
 	result.path = path
-	result.encData = getEncDataArrFromFile(path)
+	result.encData = result.getEncDataArrFromFile(path)
 	result.alreadyEnDeCrypted = make([]bool, len(result.encData))
 	for i := 0; i < len(result.alreadyEnDeCrypted); i++ {
 		result.alreadyEnDeCrypted[i] = false
@@ -60,13 +67,20 @@ func generateDecryptingWorkerpool(numThreads int, path string, password string) 
 	return &result
 }
 
-func getEncDataArrFromFile(path string) []EncData {
+func (this_ptr *Workerpool) getEncDataArrFromFile(path string) []EncData {
 	var result []EncData
+	err := this_ptr.decryptEncDatatable()
 	file, _ := os.Open(path + "/EncData")
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		result = append(result, encDataFromString(scanner.Text()))
+	if err == nil {
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			result = append(result, encDataFromString(scanner.Text()))
+		}
+	} else {
+		fmt.Println(err.Error() + ": " + "Wrong password?")
+		os.Exit(1)
 	}
+	file.Close()
 	return result
 }
 
@@ -109,6 +123,78 @@ func (this_ptr *Workerpool) writeEncData() {
 	for i := 0; i < len(this_ptr.encData); i++ {
 		out.WriteString(this_ptr.encData[i].toString() + "\n")
 	}
+	this_ptr.encryptEncDataTable()
+}
+
+func (this_ptr *Workerpool) decryptEncDatatable() error {
+
+	//read the EncData file
+	var path = this_ptr.path + "/EncData"
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	//extract salt, nonce and content
+	var salt = make([]byte, 16)
+	var nonce = make([]byte, chacha20poly1305.NonceSize)
+	var msgBytes = make([]byte, len(content)-len(salt)-len(nonce))
+	for i := 0; i < len(salt); i++ {
+		salt[i] = content[i]
+	}
+	for i := 0; i < len(nonce); i++ {
+		nonce[i] = content[len(salt)+i]
+	}
+	for i := 0; i < len(msgBytes); i++ {
+		msgBytes[i] = content[len(salt)+len(nonce)+i]
+	}
+	//generate key
+	key := deriveKey(this_ptr.password, salt)
+
+	//decrypt the content
+	var encryptor, _ = chacha20poly1305.New(key)
+	var decrypted []byte
+	decrypted, err = encryptor.Open(decrypted, nonce, msgBytes, nil)
+
+	//delete old encData file
+	safeDelete(path)
+	//write content
+	//write out content
+	out, _ := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	out.Write(decrypted)
+
+	//close output stream
+	out.Close()
+
+	return err
+}
+
+func (this_ptr *Workerpool) encryptEncDataTable() {
+	//generate salt nonce and key
+	var salt = make([]byte, 16)
+	var nonce = make([]byte, chacha20poly1305.NonceSize)
+	rand.Read(nonce)
+	rand.Read(salt)
+	var key = deriveKey(this_ptr.password, salt)
+
+	//read the encdata file
+	var path = this_ptr.path + "/EncData"
+	content, _ := ioutil.ReadFile(path)
+
+	//encrypt the content
+	var encryptor, _ = chacha20poly1305.New(key)
+	var encrypted []byte
+	encrypted = encryptor.Seal(encrypted, nonce, content, nil)
+	safeDelete(path)
+
+	//write out content
+	out, _ := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	out.Write(salt)
+	out.Write(nonce)
+	out.Write(encrypted)
+
+	//close output stream
+	out.Close()
 }
 
 func (this_ptr *Worker) run() {

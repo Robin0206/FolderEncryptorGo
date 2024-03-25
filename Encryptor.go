@@ -131,11 +131,14 @@ func (this_ptr *ChaChaEncryptor) decrypt(password string) {
 }
 
 func safeDelete(path string) {
+	size, _ := os.Open(path)
+	info, _ := size.Stat()
+	fileSize := info.Size()
+
 	file, _ := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0644)
 	file.Seek(0, io.SeekStart)
 	writer := io.WriterAt(file)
-	info, _ := file.Stat()
-	fileSize := info.Size()
+
 	zeros := make([]byte, ENC_BUFFERSIZE)
 	for i := 0; i < len(zeros); i++ {
 		zeros[i] = 0
@@ -143,5 +146,7 @@ func safeDelete(path string) {
 	for i := 0; i < int(fileSize); i += ENC_BUFFERSIZE {
 		writer.WriteAt(zeros, int64(i))
 	}
+	writer.WriteAt(zeros, 0)
+	file.Close()
 	os.Remove(path)
 }

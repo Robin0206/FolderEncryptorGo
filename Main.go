@@ -9,6 +9,10 @@ func main() {
 	var pool = generateWorkerpool(6, "./resources", "password")
 	start := time.Now()
 	pool.run()
+	showBanner(start)
+}
+
+func showBanner(start time.Time) {
 	fmt.Println(time.Since(start))
 	fmt.Println("______    _     _             _____                            _")
 	fmt.Println("|  ___|  | |   | |           |  ___|                          | |")

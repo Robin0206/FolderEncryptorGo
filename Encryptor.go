@@ -66,8 +66,8 @@ func (this_ptr *ChaChaEncryptor) decrypt(password string) {
 	defer in.Close()
 	defer out.Close()
 
-	readBuffer := make([]byte, ENC_BUFFERSIZE)
-	encBuffer := make([]byte, ENC_BUFFERSIZE)
+	var readBuffer = this_ptr.worker.readBuffer
+	var encBuffer = this_ptr.worker.encBuffer
 	for {
 		n, err := in.Read(readBuffer)
 		chacha.XORKeyStream(encBuffer, readBuffer)

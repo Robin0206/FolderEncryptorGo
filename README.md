@@ -1,12 +1,3 @@
-______    _     _             _____                            _
-|  ___|  | |   | |           |  ___|                          | |
-| |_ ___ | | __| | ___ _ __  | |__ _ __   ___ _ __ _   _ _ __ | |_ ___  _ __
-|  _/ _ \| |/ _` |/ _ \ '__| |  __| '_ \ / __| '__| | | | '_ \| __/ _ \| '__|
-| || (_) | | (_| |  __/ |    | |__| | | | (__| |  | |_| | |_) | || (_) | |
-\_| \___/|_|\__,_|\___|_|    \____/_| |_|\___|_|   \__, | .__/ \__\___/|_| 
-V2 by Robin K.                                      |__/|_| 
-
-
 Memory-Efficient and parallel FolderEncryptor which can encrypt small and large folders.
 Encryption is done using ChaCha20/HMAC. 
 

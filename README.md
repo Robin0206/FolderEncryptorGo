@@ -3,7 +3,8 @@ Encryption is done using ChaCha20/HMAC.
 
 In addition to the encryption it also generates a table with the old filename, 
 the new randomly generated filename, the used nonce, the used salt and the 
-Message Authentication Code and encrypts it with ChaCha20-Poly1305.
+Message Authentication Code. The table also gets encrypted for obfuscation 
+with ChaCha20-Poly1305.
 
 If the Poly1305 check fails, the program stops to prevent destroying the files 
 with the wrong password.

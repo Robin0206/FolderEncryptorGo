@@ -205,8 +205,12 @@ func (this_ptr *Worker) run() {
 	var index = this_ptr.pool.getNewEncDataIndex()
 	var encryptor Encryptor
 	for index != -1 {
-		encryptor = generateChaChaEncryptor(this_ptr.pool.encData[index])
-		encryptor.encrypt(this_ptr.password)
+		encryptor = generateChaChaEncryptor(this_ptr.pool.encData[index], this_ptr, index)
+		if this_ptr.pool.encrypting {
+			encryptor.encrypt(this_ptr.password)
+		} else {
+			encryptor.decrypt(this_ptr.password)
+		}
 		index = this_ptr.pool.getNewEncDataIndex()
 	}
 	this_ptr.wg.Done()
@@ -218,6 +222,9 @@ func generateWorkerpool(numThreads int, path string, password string) *Workerpoo
 	} else {
 		return generateEncryptingWorkerpool(numThreads, path, password)
 	}
+}
+func (this_ptr *Workerpool) addMacAt(index int, mac []byte) {
+	this_ptr.encData[index].mac = mac
 }
 
 func pathFolderContainsEncData(path string) bool {

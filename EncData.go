@@ -47,6 +47,7 @@ func encDataFromString(input string) EncData {
 	result.oldPath = splitInput[1]
 	result.newPath = splitInput[0]
 	result.salt = make([]byte, 16)
+	result.mac = make([]byte, 32)
 	for i := 0; i < len(result.salt); i++ {
 		converted, _ := strconv.Atoi(splitInput[2+i])
 		result.salt[i] = byte(converted)
@@ -55,6 +56,10 @@ func encDataFromString(input string) EncData {
 	for i := 0; i < len(result.nonce); i++ {
 		converted, _ := strconv.Atoi(splitInput[2+len(result.salt)+i])
 		result.nonce[i] = byte(converted)
+	}
+	for i := 0; i < len(result.mac); i++ {
+		converted, _ := strconv.Atoi(splitInput[2+len(result.salt)+len(result.nonce)+i])
+		result.mac[i] = byte(converted)
 	}
 	return result
 }

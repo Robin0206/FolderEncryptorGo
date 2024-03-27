@@ -30,4 +30,4 @@ Usage on Windows(untested):<br>
 <br>
 add the folder containing the compiled exe to your path-variable<br>
 <br>
-use it with <Name of exe> <path-to-folder><br>
+use it with \<Name of exe\> \<path-to-folder\><br>

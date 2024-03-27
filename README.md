@@ -16,3 +16,18 @@ In the future i will probably add:<br>
 -Obfuscation of folder names (currently only filenames are obfuscated)<br>
 -Maybe a second encryptor for encrypting small files which encrypts them in place <br>
   (way faster then streaming through small files, which is the current bottleneck)<br>
+
+Usage on Linux:<br>
+<br>
+the binary can be compiled by using go build<br>
+<br>
+add the following line to the end of your .bashrc<br>
+alias fenc='/path/to/the/binary/NameOfTheCompiledBinary ${PWD}'<br>
+<br>
+cd into the folder and type fenc<br>
+<br>
+Usage on Windows(untested):<br>
+<br>
+add the folder containing the compiled exe to your path-variable<br>
+<br>
+use it with <Name of exe> <path-to-folder><br>

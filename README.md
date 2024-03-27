@@ -16,7 +16,7 @@ In the future i will probably add:<br>
 -Obfuscation of folder names (currently only filenames are obfuscated)<br>
 -Maybe a second encryptor for encrypting small files which encrypts them in place <br>
   (steaming to small files seem to be a bottleneck at the moment, <br>
-  i had very good results using this on previous encryptors)<br>
+  i had very good results using this approach on previous encryptors)<br>
 
 Usage on Linux:<br>
 <br>

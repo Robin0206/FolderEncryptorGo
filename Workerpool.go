@@ -155,16 +155,20 @@ func (this_ptr *Workerpool) decryptEncDatatable() error {
 	var encryptor, _ = chacha20poly1305.New(key)
 	var decrypted []byte
 	decrypted, err = encryptor.Open(decrypted, nonce, msgBytes, nil)
-
-	//delete old encData file
-	safeDelete(path)
-	//write content
-	//write out content
-	out, _ := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	out.Write(decrypted)
-
-	//close output stream
-	out.Close()
+	if err == nil {
+		//delete old encData file
+		safeDelete(path)
+		//write content
+		//write out content
+		out, _ := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		out.Write(decrypted)
+		//close output stream
+		out.Close()
+	} else {
+		fmt.Println(err.Error())
+		fmt.Println("Maybe wrong password?")
+		os.Exit(1)
+	}
 
 	return err
 }

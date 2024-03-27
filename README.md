@@ -11,7 +11,7 @@ with the wrong password.
 
 Key Derivation is done using PKDF2.
 
-In the future i will probably add:
+In the future i will probably add:\n
 -Menu for tweaking the Iteration-count for PKDF2
 -Obfuscation of folder names (currently only filenames are obfuscated)
 -Maybe a second encryptor for encrypting small files which encrypts them in place 

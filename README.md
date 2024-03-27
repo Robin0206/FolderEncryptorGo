@@ -15,7 +15,8 @@ In the future i will probably add:<br>
 -Menu for tweaking the Iteration-count for PKDF2<br>
 -Obfuscation of folder names (currently only filenames are obfuscated)<br>
 -Maybe a second encryptor for encrypting small files which encrypts them in place <br>
-  (way faster then streaming through small files, which is the current bottleneck)<br>
+  (steaming to small files seem to be a bottleneck at the moment, <br>
+  i had very good results using this on previous encryptors)<br>
 
 Usage on Linux:<br>
 <br>

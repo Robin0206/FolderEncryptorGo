@@ -12,10 +12,12 @@ import (
 )
 
 type Worker struct {
-	pool      *Workerpool
-	encryptor Encryptor
-	password  string
-	wg        *sync.WaitGroup
+	pool       *Workerpool
+	encryptor  Encryptor
+	password   string
+	wg         *sync.WaitGroup
+	readBuffer []byte
+	encBuffer  []byte
 }
 
 type Workerpool struct {
@@ -42,7 +44,7 @@ func generateEncryptingWorkerpool(numThreads int, path string, password string) 
 	result.mutex = sync.Mutex{}
 	result.workers = make([]Worker, numThreads)
 	for i := 0; i < numThreads; i++ {
-		result.workers[i] = generateTestWorker(&result, password)
+		result.workers[i] = generateWorker(&result, password)
 		result.wg.Add(1)
 	}
 	return &result
@@ -61,7 +63,7 @@ func generateDecryptingWorkerpool(numThreads int, path string, password string) 
 	result.mutex = sync.Mutex{}
 	result.workers = make([]Worker, numThreads)
 	for i := 0; i < numThreads; i++ {
-		result.workers[i] = generateTestWorker(&result, password)
+		result.workers[i] = generateWorker(&result, password)
 		result.wg.Add(1)
 	}
 	return &result
@@ -84,11 +86,13 @@ func (this_ptr *Workerpool) getEncDataArrFromFile(path string) []EncData {
 	return result
 }
 
-func generateTestWorker(w *Workerpool, password string) Worker {
+func generateWorker(w *Workerpool, password string) Worker {
 	var result Worker
 	result.pool = w
 	result.password = password
 	result.wg = &(w.wg)
+	result.readBuffer = make([]byte, ENC_BUFFERSIZE)
+	result.encBuffer = make([]byte, ENC_BUFFERSIZE)
 	return result
 }
 

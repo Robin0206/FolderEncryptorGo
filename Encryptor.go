@@ -16,68 +16,6 @@ type Encryptor interface {
 	decrypt(password string)
 }
 
-type TestEncryptor struct {
-	encData EncData
-}
-
-type FlipEncryptor struct {
-	encData EncData
-}
-
-func (this_ptr *FlipEncryptor) encrypt(password string) {
-	fmt.Println(this_ptr.encData.toString())
-	out, _ := os.OpenFile(this_ptr.encData.newPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	in, _ := os.Open(this_ptr.encData.oldPath)
-	defer in.Close()
-	defer out.Close()
-
-	buffer := make([]byte, 1024)
-
-	for {
-		n, err := in.Read(buffer)
-		for i := 0; i < n; i++ {
-			buffer[i] ^= 255
-		}
-
-		out.Write(buffer[:n])
-		if err == io.EOF {
-			break
-		}
-	}
-	os.Remove(this_ptr.encData.oldPath)
-}
-
-func (this_ptr *FlipEncryptor) decrypt(password string) {
-	out, _ := os.OpenFile(this_ptr.encData.newPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	in, _ := os.Open(this_ptr.encData.oldPath)
-	defer in.Close()
-	defer out.Close()
-
-	buffer := make([]byte, 1024)
-
-	for {
-		n, err := in.Read(buffer)
-		for i := 0; i < n; i++ {
-			buffer[i] ^= 255
-		}
-
-		out.Write(buffer[:n])
-		if err == io.EOF {
-			break
-		}
-	}
-	os.Remove(this_ptr.encData.oldPath)
-}
-
-func (this_ptr *TestEncryptor) encrypt(password string) {
-	fmt.Println(this_ptr.encData.toString())
-	fmt.Println("=======================================================================================================================================================")
-}
-
-func (this_ptr *TestEncryptor) decrypt(password string) {
-	fmt.Println(this_ptr.encData.toString())
-}
-
 type ChaChaEncryptor struct {
 	chacha  chacha20.Cipher
 	encData *EncData
@@ -103,8 +41,8 @@ func (this_ptr *ChaChaEncryptor) encrypt(password string) {
 	defer in.Close()
 	defer out.Close()
 
-	readBuffer := make([]byte, ENC_BUFFERSIZE)
-	encBuffer := make([]byte, ENC_BUFFERSIZE)
+	var readBuffer = this_ptr.worker.readBuffer
+	var encBuffer = this_ptr.worker.encBuffer
 	for {
 		n, err := in.Read(readBuffer)
 		mac.Write(readBuffer[:n])

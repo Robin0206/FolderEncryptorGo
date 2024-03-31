@@ -16,22 +16,22 @@ type Encryptor interface {
 	decrypt(password string)
 }
 
-type ChaChaEncryptor struct {
+type ChaChaStreamingEncryptor struct {
 	chacha  chacha20.Cipher
 	encData *EncData
 	worker  *Worker
 	index   int
 }
 
-func generateChaChaEncryptor(encData EncData, worker *Worker, index int) *ChaChaEncryptor {
-	var result ChaChaEncryptor
+func generateChaChaStreamingEncryptor(encData EncData, worker *Worker, index int) *ChaChaStreamingEncryptor {
+	var result ChaChaStreamingEncryptor
 	result.encData = &encData
 	result.worker = worker
 	result.index = index
 	return &result
 }
 
-func (this_ptr *ChaChaEncryptor) encrypt(password string) {
+func (this_ptr *ChaChaStreamingEncryptor) encrypt(password string) {
 	key := deriveKey(password, this_ptr.encData.salt)
 	chacha, _ := chacha20.NewUnauthenticatedCipher(key, this_ptr.encData.nonce)
 	chacha.SetCounter(0)
@@ -56,7 +56,7 @@ func (this_ptr *ChaChaEncryptor) encrypt(password string) {
 	safeDelete(this_ptr.encData.oldPath)
 }
 
-func (this_ptr *ChaChaEncryptor) decrypt(password string) {
+func (this_ptr *ChaChaStreamingEncryptor) decrypt(password string) {
 	key := deriveKey(password, this_ptr.encData.salt)
 	chacha, _ := chacha20.NewUnauthenticatedCipher(key, this_ptr.encData.nonce)
 	chacha.SetCounter(0)
@@ -85,9 +85,7 @@ func (this_ptr *ChaChaEncryptor) decrypt(password string) {
 }
 
 func safeDelete(path string) {
-	size, _ := os.Open(path)
-	info, _ := size.Stat()
-	fileSize := info.Size()
+	fileSize := getFileSize(path)
 
 	file, _ := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0644)
 	file.Seek(0, io.SeekStart)
@@ -103,4 +101,68 @@ func safeDelete(path string) {
 	writer.WriteAt(zeros, 0)
 	file.Close()
 	os.Remove(path)
+}
+
+func getFileSize(path string) int64 {
+	size, _ := os.Open(path)
+	info, _ := size.Stat()
+	fileSize := info.Size()
+	err := size.Close()
+	if err != nil {
+		fmt.Println("Error while reading fileSize of " + path)
+	}
+	return fileSize
+}
+
+type ChaChaInPlaceEncryptor struct {
+	chacha  chacha20.Cipher
+	encData *EncData
+	worker  *Worker
+	index   int
+}
+
+func generateChaChaInPlaceEncryptor(encData EncData, worker *Worker, index int) *ChaChaInPlaceEncryptor {
+	var result ChaChaInPlaceEncryptor
+	result.encData = &encData
+	result.worker = worker
+	result.index = index
+	return &result
+}
+
+func (this_ptr *ChaChaInPlaceEncryptor) encrypt(password string) {
+	key := deriveKey(password, this_ptr.encData.salt)
+	chacha, _ := chacha20.NewUnauthenticatedCipher(key, this_ptr.encData.nonce)
+	chacha.SetCounter(0)
+	mac := hmac.New(sha256.New, key)
+
+	inputData, _ := os.ReadFile(this_ptr.encData.oldPath)
+	outputData := make([]byte, len(inputData))
+	mac.Write(inputData)
+	chacha.XORKeyStream(outputData, inputData)
+	err := os.WriteFile(this_ptr.encData.oldPath, outputData, 0644)
+	if err != nil {
+		fmt.Println("Error overwriting: " + this_ptr.encData.oldPath)
+	}
+	os.Rename(this_ptr.encData.oldPath, this_ptr.encData.newPath)
+	this_ptr.worker.pool.addMacAt(this_ptr.index, mac.Sum(nil))
+}
+
+func (this_ptr *ChaChaInPlaceEncryptor) decrypt(password string) {
+	key := deriveKey(password, this_ptr.encData.salt)
+	chacha, _ := chacha20.NewUnauthenticatedCipher(key, this_ptr.encData.nonce)
+	chacha.SetCounter(0)
+	mac := hmac.New(sha256.New, key)
+
+	inputData, _ := os.ReadFile(this_ptr.encData.oldPath)
+	outputData := make([]byte, len(inputData))
+	chacha.XORKeyStream(outputData, inputData)
+	mac.Write(outputData)
+	if !hmac.Equal(mac.Sum(nil), this_ptr.encData.mac) {
+		fmt.Println(this_ptr.encData.newPath + ": Message Authentication failed!")
+	}
+	err := os.WriteFile(this_ptr.encData.oldPath, outputData, 0644)
+	if err != nil {
+		fmt.Println("Error overwriting: " + this_ptr.encData.oldPath)
+	}
+	os.Rename(this_ptr.encData.oldPath, this_ptr.encData.newPath)
 }

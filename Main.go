@@ -43,7 +43,6 @@ func main() {
 			os.Exit(0)
 		}
 	}
-
 }
 
 func getBufferSizeFromUser() int {

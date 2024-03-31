@@ -209,7 +209,12 @@ func (this_ptr *Worker) run() {
 	var index = this_ptr.pool.getNewEncDataIndex()
 	var encryptor Encryptor
 	for index != -1 {
-		encryptor = generateChaChaEncryptor(this_ptr.pool.encData[index], this_ptr, index)
+		fileSize := getFileSize(this_ptr.pool.encData[index].oldPath)
+		if int(fileSize) < ENC_BUFFERSIZE/10 {
+			encryptor = generateChaChaInPlaceEncryptor(this_ptr.pool.encData[index], this_ptr, index)
+		} else {
+			encryptor = generateChaChaStreamingEncryptor(this_ptr.pool.encData[index], this_ptr, index)
+		}
 		if this_ptr.pool.encrypting {
 			encryptor.encrypt(this_ptr.password)
 		} else {

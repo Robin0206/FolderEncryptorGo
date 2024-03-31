@@ -26,8 +26,6 @@ alias fenc='/path/to/the/binary/NameOfTheCompiledBinary ${PWD}'<br>
 <br>
 cd into the folder and type fenc<br>
 <br>
-Usage on Windows(untested):<br>
-<br>
-Add the folder containing the compiled exe to your path-variable<br>
-<br>
-use it with \<Name of exe\> \<path-to-folder\><br>
+Usage on Windows is untested but the program takes the path to the folder as its first argument.<br>
+In theory it should just work if you compile your own binary using go build(on a windows machine).<br>
+After that add the path to the folder thats containing your exe to the path variable.<br>

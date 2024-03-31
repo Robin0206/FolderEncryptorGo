@@ -14,13 +14,12 @@ Key Derivation is done using PKDF2.<br>
 In the future i will probably add:<br>
 -Menu for tweaking the Iteration-count for PKDF2<br>
 -Obfuscation of folder names (currently only filenames are obfuscated)<br>
--Maybe a second encryptor for encrypting small files which encrypts them in place <br>
-  (steaming to small files seem to be a bottleneck at the moment, <br>
-  i had very good results using this approach on previous encryptors)<br>
 
 Usage on Linux:<br>
 <br>
-the binary can be compiled by using go build<br>
+there is a binary in the out folder.<br>
+the binary can be compiled by using go build.<br>
+
 <br>
 add the following line to the end of your .bashrc<br>
 alias fenc='/path/to/the/binary/NameOfTheCompiledBinary ${PWD}'<br>

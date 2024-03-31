@@ -18,7 +18,7 @@ In the future i will probably add:<br>
 Usage on Linux:<br>
 <br>
 there is a binary in the out folder.<br>
-the binary can be compiled by using go build.<br>
+you still can compile your own one using go build.<br>
 
 <br>
 add the following line to the end of your .bashrc<br>

@@ -17,17 +17,17 @@ In the future i will probably add:<br>
 
 Usage on Linux:<br>
 <br>
-there is a binary in the out folder.<br>
-you still can compile your own one using go build.<br>
+There is a binary in the out folder.<br>
+Additionally you still can compile your own one using go build.<br>
 
 <br>
-add the following line to the end of your .bashrc<br>
+Add the following line to the end of your .bashrc<br>
 alias fenc='/path/to/the/binary/NameOfTheCompiledBinary ${PWD}'<br>
 <br>
 cd into the folder and type fenc<br>
 <br>
 Usage on Windows(untested):<br>
 <br>
-add the folder containing the compiled exe to your path-variable<br>
+Add the folder containing the compiled exe to your path-variable<br>
 <br>
 use it with \<Name of exe\> \<path-to-folder\><br>
